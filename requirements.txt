@@ -18,7 +18,7 @@ async-lru==2.0.4
 asyncssh==2.19.0
 atpublic==5.0
 attrs==24.3.0
-awscli==1.40.45
+awscli==1.20.65
 babel==2.16.0
 beautifulsoup4==4.12.3
 billiard==4.2.1
