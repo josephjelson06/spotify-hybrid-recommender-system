@@ -47,7 +47,7 @@ def data_for_content_filtering(data):
     """
     return (
         data
-        .drop(columns=["track_id","name","spotify_preview_url"])
+        .drop(columns=["track_id","name","spotify_preview_url"],errors='ignore')
     )
     
     

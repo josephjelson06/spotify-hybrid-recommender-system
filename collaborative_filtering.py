@@ -21,7 +21,8 @@ def filter_songs_data(songs_data: pd.DataFrame, track_ids: list, save_df_path: s
     # filter data based on track_ids
     filtered_data = songs_data[songs_data["track_id"].isin(track_ids)]
     # sort the data by track id
-    filtered_data.sort_values(by="track_id", inplace=True)
+    # filtered_data.sort_values(by="track_id", inplace=True)
+    filtered_data = filtered_data.sort_values(by="track_id")
     # rest index
     filtered_data.reset_index(drop=True, inplace=True)
     # save the data
@@ -44,7 +45,7 @@ def save_sparse_matrix(matrix: csr_matrix, file_path: str) -> None:
     save_npz(file_path, matrix)
 
 
-def create_interaction_matrix(history_data:dd.DataFrame, track_ids_save_path, save_matrix_path) -> csr_matrix:
+def create_interaction_matrix(history_data:pd.DataFrame, track_ids_save_path, save_matrix_path) -> csr_matrix:
     # make a copy of data
     df = history_data.copy()
     
@@ -52,7 +53,10 @@ def create_interaction_matrix(history_data:dd.DataFrame, track_ids_save_path, sa
     df['playcount'] = df['playcount'].astype(np.float64)
     
     # convert string column to categorical
-    df = df.categorize(columns=['user_id', 'track_id'])
+    # df = df.categorize(columns=['user_id', 'track_id'])
+    df['user_id'] = df['user_id'].astype('category')
+    df['track_id'] = df['track_id'].astype('category')
+
     
     # Convert user_id and track_id to numeric indices
     user_mapping = df['user_id'].cat.codes
@@ -74,7 +78,7 @@ def create_interaction_matrix(history_data:dd.DataFrame, track_ids_save_path, sa
     interaction_matrix = df.groupby(['track_idx', 'user_idx'])['playcount'].sum().reset_index()
     
     # compute the matrix
-    interaction_matrix = interaction_matrix.compute()
+    # interaction_matrix = interaction_matrix.compute()
     
     # get the indices to form sparse matrix
     row_indices = interaction_matrix['track_idx']
@@ -150,6 +154,9 @@ def main():
     # filter the songs data
     songs_data = pd.read_csv(songs_data_path)
     filter_songs_data(songs_data, unique_track_ids, filtered_data_save_path)
+
+    # Convert to pandas here before interaction matrix creation
+    user_data = user_data.compute()
     
     # create the interaction matrix
     create_interaction_matrix(user_data, track_ids_save_path, interaction_matrix_save_path)
